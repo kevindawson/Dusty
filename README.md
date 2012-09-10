@@ -6,7 +6,7 @@ some of my ~/bin files for prosperity
 
 cpan_new.pl 
 
-use to get perlbrew bleeds upto speed
+use to get perlbrew bleeds up-to speed
 
 
 cpan_padre.pl
