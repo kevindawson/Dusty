@@ -7,7 +7,7 @@ some of my ~/bin files for prosperity
 cpan_new.pl
 ---- 
 
-I use this script to get perlbrew monthly bleeds up-to speed
+I use this script on a new perl builds by perlbrew, gets cpan up-to speed
 
 
 cpan_padre.pl
