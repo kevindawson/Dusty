@@ -31,6 +31,5 @@ also
 
 	version 0.04
 
-more fudge
 
 __END__
