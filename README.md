@@ -10,7 +10,7 @@ use to get perlbrew bleeds upto speed
 
 
 cpan_padre.pl
-install padre and my fav plugins
+install padre and my faviorte plugins
 
 cpan_bot.pl 
 
