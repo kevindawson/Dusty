@@ -26,3 +26,6 @@ also
 =head1 VERSION
 
 version 0.04
+
+
+__END__
