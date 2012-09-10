@@ -21,4 +21,7 @@ update_version_number.pl
 updates
 our $VERSION = '0.04';
 
+also 
+=head1 VERSION
 
+version 0.04
