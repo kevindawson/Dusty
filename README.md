@@ -35,45 +35,5 @@ also
 
 __END__
 
-=head1 NAME
+&copy bowtie
 
-MyModule - My first module
-
-=head1 SYNOPSIS
-
-  use MyModule;
-  my $o = MyModule->new;
-  ...
-
-=head2 HEAD2
-
-bob C<code> B<bold> I<italic> E<lt> E<copy> L<name|link/section> 
-
- leading space C<code>
-
-=head1 HEAD1
-
-=head1 Heading 1 Text
-
-=head2 Heading 2 Text
-
-=head3 Heading 3 Text
-
-=head4 Heading 4 Text
-
-=over indentlevel
-
-=item stuff
-
-=back
-
-=begin format
-
-=end format
-
-=for format text...
-
-=encoding type
-
-
-=cut
