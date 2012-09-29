@@ -41,7 +41,7 @@ sub xversion {
 		my @new = map { $_ =~ s/^(our \$VERSION\s*=\s*)'\d{1,2}.\d{0,3}.*\d{0,3}';/$1'$version';/; $_ } @data;
 		
 		if ( grep { $_ =~ /^=head1 VERSION/ } @data ) {
-			@new = map { $_ =~ s/(version ).*/$1 $version/; $_ } @data;
+			@new = map { $_ =~ s/(\sversion ).*/$1 $version/; $_ } @data;
 			
 			
 			say 'Just processed POD '. $File::Find::name;
