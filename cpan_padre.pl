@@ -13,6 +13,7 @@ use feature 'unicode_strings';
 
 use autodie;
 use diagnostics;
+
 # use Data::Printer {caller_info => 1, colored => 1,};
 
 say 'START';
@@ -24,12 +25,12 @@ CPAN::Shell::setup_output;
 CPAN::Index->reload;
 
 
-my @modules
-  = qw( Padre Padre::Plugin::PerlTidy Padre::Plugin::PerlCritic Text::Aspell Text::Huspell Padre::Plugin::SpellCheck );
+my @modules =
+	qw( Padre Padre::Plugin::PerlTidy Padre::Plugin::PerlCritic Text::Aspell Text::Huspell Padre::Plugin::SpellCheck );
 
 # install Padre on top of perlbrew and cpan_new.pl:
 for my $mod (@modules) {
-  CPAN::Shell->install($mod);
+	CPAN::Shell->install($mod);
 }
 
 

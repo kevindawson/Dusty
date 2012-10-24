@@ -35,21 +35,20 @@ sub xversion {
 	return if $File::Find::name =~ /\.svn/;
 	return if $_ !~ /\.p[lm]/;
 	my @data = read_file($_);
-	
-	
+
+
 	if ( grep { $_ =~ /^our \$VERSION\s*=\s*'\d{1,2}.\d{0,3}.*\d{0,3}';/ } @data ) {
 		my @new = map { $_ =~ s/^(our \$VERSION\s*=\s*)'\d{1,2}.\d{0,3}.*\d{0,3}';/$1'$version';/; $_ } @data;
-		
+
 		if ( grep { $_ =~ /^=head1 VERSION/ } @data ) {
-			@new = map { $_ =~ s/(\sversion ).*/$1 $version/; $_ } @data;
-			
-			
-			say 'Just processed POD '. $File::Find::name;
-			}
-		
+			@new = map { $_ =~ s/(version).*/$1 $version/; $_ } @data;
+
+			say 'Just processed POD ' . $File::Find::name;
+		}
+
 		# p @new;
 		write_file( $_, @new );
-		say 'Just processed VERSION '.$File::Find::name;
+		say 'Just processed VERSION ' . $File::Find::name;
 	} else {
 		warn "No VERSION in $File::Find::name\n";
 	}
