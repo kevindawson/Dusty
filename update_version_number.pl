@@ -28,12 +28,12 @@ die "Usage: $0 VERSION not provided\n" if not $version or $version !~ /^\d{1,2}.
 print "Setting VERSION $version\n";
 
 my @directories_to_search = qw( lib scripts );
-say find( \&xversion, @directories_to_search );
+find( \&xversion, @directories_to_search );
 
 
 sub xversion {
 	return if $File::Find::name =~ /\.svn/;
-	return if $_ !~ /\.p[lm]/;
+	return if $_ !~ /\.[p[lm]|pod]/;
 	my @data = read_file($_);
 
 
