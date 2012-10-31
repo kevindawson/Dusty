@@ -30,19 +30,16 @@ print "Setting VERSION $version\n";
 my @directories_to_search = qw( lib scripts );
 find( \&xversion, @directories_to_search );
 
-
 sub xversion {
 	return if $File::Find::name =~ /\.svn/;
-	return if $_ !~ /\.[p[lm]|pod]/;
+	return if $_ !~ /\.p[lm]/;
 	my @data = read_file($_);
-
 
 	if ( grep { $_ =~ /^our \$VERSION\s*=\s*'\d{1,2}.\d{0,3}.*\d{0,3}';/ } @data ) {
 		my @new = map { $_ =~ s/^(our \$VERSION\s*=\s*)'\d{1,2}.\d{0,3}.*\d{0,3}';/$1'$version';/; $_ } @data;
 
 		if ( grep { $_ =~ /^=head1 VERSION/ } @data ) {
-			@new = map { $_ =~ s/(version).*/$1 $version/; $_ } @data;
-
+			@new = map { $_ =~ s/(?<pre>.*)(?<ver>version)(?!\s*=>).*/$+{pre}$+{ver} $version/; $_ } @data;
 			say 'Just processed POD ' . $File::Find::name;
 		}
 
@@ -52,6 +49,7 @@ sub xversion {
 	} else {
 		warn "No VERSION in $File::Find::name\n";
 	}
+
 }
 
 say 'END';
