@@ -32,7 +32,11 @@ also
 
 	version 0.04
 
+midgen.pl
+----
+generates the core for a Module::Install::DSL Makefile.PL
 
+	Change to root of package and run midgen.pl
 
 __END__
 
