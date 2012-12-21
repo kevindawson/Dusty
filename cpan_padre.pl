@@ -1,20 +1,17 @@
 #!/usr/bin/env perl
 
-use 5.014;
+use 5.012;
 use strict;
 use warnings;
 
-# Turn on $OUTPUT_AUTOFLUSH
-$| = 1;
+use English qw( -no_match_vars ); # Avoids regex performance penalty
+$OUTPUT_AUTOFLUSH = 1;
 
-use feature 'unicode_strings';
-
-# use open qw( :encoding (UTF-8) :STD );
+our $VERSION = '0.101';
 
 use autodie;
 use diagnostics;
 
-# use Data::Printer {caller_info => 1, colored => 1,};
 
 say 'START';
 
@@ -25,8 +22,12 @@ CPAN::Shell::setup_output;
 CPAN::Index->reload;
 
 
-my @modules =
-	qw( Padre Padre::Plugin::PerlTidy Padre::Plugin::PerlCritic Text::Aspell Text::Huspell Padre::Plugin::SpellCheck );
+my @modules = qw( Padre Padre::Plugin::PerlTidy Padre::Plugin::PerlCritic
+	Padre::Plugin::SpellCheck Padre::Plugin::YAML Padre::Plugin::Cookbook
+	Padre::Plugin::Nopaste Padre::Plugin::Git Method::Signatures::Modifiers
+	Class::XSAccessor Moo Class::Accessor Term::ANSIColor File::HomeDir
+	Time::HiRes Regexp::Debugger Carp::Always::Color Contextual::Return
+	Text::Hunspell Text::Aspell );
 
 # install Padre on top of perlbrew and cpan_new.pl:
 for my $mod (@modules) {
