@@ -34,9 +34,19 @@ my @requires      = ();
 my %requires      = ();
 my %test_requires = ();
 
-# my @directories_to_search = qw( lib scripts );
-my @directories_to_search = qw( lib );
-find( \&requires, @directories_to_search );
+
+my @posiable_directories_to_search = qw( lib scripts bin );
+my @directories_to_search;# = qw( lib scripts bin );
+
+for my $directory (@posiable_directories_to_search) {
+	if ( -d $directory ) {
+		push @directories_to_search, $directory;
+	}
+}
+
+try {
+	find( \&requires, @directories_to_search );
+};
 
 sub requires {
 	return if $_ !~ /\.p[lm]$/;
@@ -99,7 +109,7 @@ foreach my $key ( sort keys %requires ) {
 find( \&test_requires, @directories_to_search );
 
 sub test_requires {
-	return if $_ !~ /\.t/;
+	return if $_ !~ /\.[t|pm]$/;
 	# p $_;
 	my @items = ();
 
