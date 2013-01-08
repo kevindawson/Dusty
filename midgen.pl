@@ -61,7 +61,7 @@ GetOptions(
 	'base|parent|b|p' => \$base_parent,
 	'help|h|?'        => \$help,
 	'mojo|m'          => \$mojo,
-	'debug|d'         => sub { $core = 1; $verbose = 1, $base_parent = 0; $mojo =0; $debug = 1; },
+	'debug|d'         => sub { $core = 1; $verbose = 1, $base_parent = 0; $mojo = 0; $debug = 1; },
 ) or pod2usage(2);
 pod2usage(1) if $help;
 
@@ -298,7 +298,7 @@ sub test_requires {
 						# don't include our own packages here
 						next;
 					}
-					if ( $module =~ /Mojo/ && !$mojo) {
+					if ( $module =~ /Mojo/ && !$mojo ) {
 						$module = 'Mojolicious';
 					}
 					if ( $module =~ /^Padre/ && $module !~ /^Padre::Plugin::/ ) {
@@ -424,28 +424,28 @@ __END__
 
 
 =head1 NAME
- 
+
 sample - Using Getopt::Long and Pod::Usage
- 
+
 =head1 SYNOPSIS
- 
+
 sample [options]
- 
+
  Options:
    -help	brief help message
    -core	show perl core modules
    -base	check base includes
    -verbose	
    -debug	lots of stuff
-   
+
 =head1 OPTIONS
- 
+
 =over 4
- 
+
 =item B<--help or -h>
- 
+
 Print a brief help message and exits.
- 
+
 =item B<-core or -c>
 
 Shows modules that are in Perl core
@@ -471,11 +471,11 @@ Turn Off - the /Mojo/ to Mojolicious catch
 equivalent of -cv and some :)
 
 =back
- 
+
 =head1 DESCRIPTION
- 
+
 B<This program> will read the given input file(s) and do something
 useful with the contents thereof.
- 
+
 =cut
 
