@@ -39,36 +39,47 @@ my %requires      = ();
 my %test_requires = ();
 my @package_names;
 my $package_name;
-my $format = 'mi'; # dsl | mi | build
-
-# my $ignore_base = 1;    # 1 true ignore perl base functions
 
 my @posiable_directories_to_search = ();
 my @directories_to_search          = ();
 
 # my $mod_version = 'current';
-my $mod_version = 5.010000;
+# my $mod_version = 5.010000;
 
 use Getopt::Long;
 Getopt::Long::Configure("bundling");
 use Pod::Usage;
 my $help        = 0;
-my $base_parent = 0; # 1 true ignore perl base functions
-my $core        = 0; # show perl core modules as well
-my $verbose     = 0; # option variable with default value (false)
-my $mojo        = 0; # 1 true ignore Mojo detection
-my $debug       = 0; # lots of good stuff here :)
+my $base_parent = 0;    # 1 true ignore perl base functions
+my $core        = 0;    # show perl core modules as well
+my $verbose     = 0;    # option variable with default value (false)
+my @output      = ();
+my $mojo        = 0;    # 1 true ignore Mojo detection
+my $debug       = 0;    # lots of good stuff here :)
 GetOptions(
 	'verbose|v'       => \$verbose,
 	'core|c'          => \$core,
 	'base|parent|b|p' => \$base_parent,
 	'help|h|?'        => \$help,
 	'mojo|m'          => \$mojo,
+	'output|o=s'      => \@output,
 	'debug|d'         => sub { $core = 1; $verbose = 1, $base_parent = 0; $mojo = 0; $debug = 1; },
 ) or pod2usage(2);
 pod2usage(1) if $help;
 
+p @output;
+sub output_format {
+	my $format = { dsl => 1, mi => 1, build => 1, };
+	if ( $format->{$output[0]} ) {
+		return $output[0];
+	} else {
+		return 'dsl';
+	}
+}
 
+# my $format = 'dsl'; # dsl | mi | build
+my $format = output_format();
+p $format if $debug;
 
 say 'START';
 
@@ -294,10 +305,11 @@ sub test_requires {
 
 						p $module if $debug;
 
-						# don't ignore Test::More so as to get done_testing
+						# don't ignore Test::More so as to get done_testing mst++
 						if ( $module ne 'Test::More' ) {
 							next if Module::CoreList->first_release($module);
 						}
+
 					}
 
 					#deal with ''
@@ -433,27 +445,37 @@ __END__
 
 
 =head1 NAME
-
+ 
 sample - Using Getopt::Long and Pod::Usage
-
+ 
 =head1 SYNOPSIS
-
+ 
 sample [options]
-
+ 
  Options:
    -help	brief help message
+   -output	change format
    -core	show perl core modules
-   -base	check base includes
-   -verbose	
+   -verbose	take a little peek as to what is going on
+   -base	Don't check for base includes
+   -mojo	Don't be Mojo friendly	
    -debug	lots of stuff
-
+   
 =head1 OPTIONS
-
+ 
 =over 4
-
+ 
 =item B<--help or -h>
-
+ 
 Print a brief help message and exits.
+
+=item B<--output or -o>
+ 
+By default we do 'dsl' -> Module::Include::DSL
+
+ midgen.pl -o mi	# Module::Include
+ midgen.pl -o build	# Build.PL
+
 
 =item B<-core or -c>
 
@@ -480,11 +502,13 @@ Turn Off - the /Mojo/ to Mojolicious catch
 equivalent of -cv and some :)
 
 =back
-
+ 
 =head1 DESCRIPTION
-
+ 
 B<This program> will read the given input file(s) and do something
 useful with the contents thereof.
 
+=head1 See Also
+Perl::PrereqScanner
 =cut
 
