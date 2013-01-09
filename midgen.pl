@@ -288,7 +288,11 @@ sub test_requires {
 					if ( !$core ) {
 
 						p $module if $debug;
-						next if Module::CoreList->first_release($module);
+
+						# don't ignore Test::More so as to get done_testing
+						if ( $module ne 'Test::More' ) {
+							next if Module::CoreList->first_release($module);
+						}
 					}
 
 					#deal with ''
