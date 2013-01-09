@@ -449,7 +449,7 @@ __END__
 
 =head1 NAME
  
-sample - Using Getopt::Long and Pod::Usage
+sample - midgen.pl
  
 =head1 SYNOPSIS
  
@@ -507,11 +507,35 @@ equivalent of -cv and some :)
 =back
  
 =head1 DESCRIPTION
- 
-B<This program> will read the given input file(s) and do something
-useful with the contents thereof.
 
-=head1 See Also
-Perl::PrereqScanner
+This started out as a way of generating the core for a Module::Install::DSL Makefile.PL
+
+Change to root of package and run
+
+ midgen.pl
+
+Now with a GetOps --help or -?
+
+ midgen.pl -?
+
+=head1 AUTHORS
+
+Kevin Dawson E<lt>bowtie@cpan.orgE<gt>
+
+=head2 CONTRIBUTORS
+
+=head1 COPYRIGHT
+
+Copyright E<copy> 2012-2013 AUTHORS and "CONTRIBUTORS" as listed above.
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or
+modify it under the same terms as Perl 5 itself.
+
+=head1 SEE ALSO
+ 
+L<Perl::PrereqScanner>,
+
 =cut
 
