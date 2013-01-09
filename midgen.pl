@@ -50,12 +50,12 @@ use Getopt::Long;
 Getopt::Long::Configure("bundling");
 use Pod::Usage;
 my $help        = 0;
-my $base_parent = 0; # 1 true ignore perl base functions
-my $core        = 0; # show perl core modules as well
-my $verbose     = 0; # option variable with default value (false)
+my $base_parent = 0;    # 1 true ignore perl base functions
+my $core        = 0;    # show perl core modules as well
+my $verbose     = 0;    # option variable with default value (false)
 my @output      = 'dsl';
-my $mojo        = 0; # 1 true ignore Mojo detection
-my $debug       = 0; # lots of good stuff here :)
+my $mojo        = 0;    # 1 true ignore Mojo detection
+my $debug       = 0;    # lots of good stuff here :)
 GetOptions(
 	'verbose|v'       => \$verbose,
 	'core|c'          => \$core,
@@ -91,8 +91,8 @@ try {
 };
 p @package_names if $debug;
 $package_name = $package_names[0];
-say 'Package: ' . $package_names[0];
-
+say 'Package: ' . $package_names[0] if $verbose;
+output_top($package_name);
 
 
 if ( defined -d "./lib" ) {
@@ -130,8 +130,9 @@ try {
 
 
 
-output( 'requires', \%requires );
-print "\n";
+output_requires( 'requires', \%requires );
+
+# print "\n";
 
 # remove_children( \%requires );
 
@@ -149,8 +150,8 @@ try {
 	find( \&test_requires, @directories_to_search );
 };
 
-output( 'test_requires', \%test_requires );
-
+output_requires( 'test_requires', \%test_requires );
+output_bottom();
 
 print "\n";
 say 'END';
@@ -209,7 +210,7 @@ sub requires {
 
 						p $module if $debug;
 						my $ignore_core = { 'File::Path' => 1, };
-						if ( !$ignore_core->{$module} ) {	
+						if ( !$ignore_core->{$module} ) {
 							next if Module::CoreList->first_release($module);
 						}
 					}
@@ -309,7 +310,7 @@ sub test_requires {
 
 						# don't ignore Test::More so as to get done_testing mst++
 						my $ignore_core = { 'Test::More' => 1, };
-						if ( !$ignore_core->{$module} ) {	
+						if ( !$ignore_core->{$module} ) {
 							next if Module::CoreList->first_release($module);
 						}
 
@@ -396,8 +397,29 @@ sub base_parent {
 }
 
 
+sub output_top {
+	my $package = shift || return;
 
-sub output {
+	given ($format) {
+
+		# when ('mi') {
+
+		# }
+		when ('dsl') {
+			print "\n";
+			say 'use inc::Module::Install::DSL 1.06;';
+			print "\n";
+			say 'all_from lib/' . $package;
+			say 'requires_from lib/' . $package;
+		}
+
+		# when ('build') {
+
+		# }
+	}
+}
+
+sub output_requires {
 	my $title        = shift || 'title missing';
 	my $required_ref = shift || return;
 
@@ -415,11 +437,20 @@ sub output {
 	foreach my $key ( sort keys %{$required_ref} ) {
 		given ($format) {
 			when ('mi') {
+				if ( $key =~ /^Win32/ ) {
+				my $sq_key = "'$key'";
+				printf "%s %-*s => '%s' if win32;\n", $title, $pm_length + 2, $sq_key, $required_ref->{$key};
+			} else {
 				my $sq_key = "'$key'";
 				printf "%s %-*s => '%s';\n", $title, $pm_length + 2, $sq_key, $required_ref->{$key};
+				}
 			}
 			when ('dsl') {
-				printf "%s %-*s %s\n", $title, $pm_length, $key, $required_ref->{$key};
+				if ( $key =~ /^Win32/ ) {
+					printf "%s %-*s %s if win32\n", $title, $pm_length, $key, $required_ref->{$key};
+				} else {
+					printf "%s %-*s %s\n", $title, $pm_length, $key, $required_ref->{$key};
+				}
 			}
 			when ('build') {
 				my $sq_key = "'$key'";
@@ -428,6 +459,33 @@ sub output {
 		}
 	}
 	say '},' if $format eq 'build';
+}
+
+sub output_bottom {
+
+	given ($format) {
+
+		# when ('mi') {
+
+		# }
+		when ('dsl') {
+			print "\n";
+			say '#ToDo you should consider completing the following';
+			say 'homepage	...';
+			say 'bugtracker	...';
+			say 'repository	...';
+			print "\n";
+			if ( defined -d "./share" ) {
+				say 'install_share';
+				print "\n";
+			}
+			say 'no_index directory  qw{ t xt eg share inc privinc }';
+		}
+
+		# when ('build') {
+
+		# }
+	}
 }
 
 sub remove_children {
