@@ -67,7 +67,7 @@ GetOptions(
 ) or pod2usage(2);
 pod2usage(1) if $help;
 
-p @output;
+p @output if $debug;
 
 sub output_format {
 	my $format = { dsl => 1, mi => 1, build => 1, };
@@ -208,12 +208,11 @@ sub requires {
 					if ( !$core ) {
 
 						p $module if $debug;
-						if ( $module ne 'File::Path' ) {
+						my $ignore_core = { 'File::Path' => 1, };
+						if ( !$ignore_core->{$module} ) {	
 							next if Module::CoreList->first_release($module);
 						}
 					}
-
-					# my $module = $include->module;
 
 					#deal with ''
 					next if $module eq '';
@@ -310,7 +309,6 @@ sub test_requires {
 
 						# don't ignore Test::More so as to get done_testing mst++
 						my $ignore_core = { 'Test::More' => 1, };
-						# if ( $module ne 'Test::More' ) {
 						if ( !$ignore_core->{$module} ) {	
 							next if Module::CoreList->first_release($module);
 						}
