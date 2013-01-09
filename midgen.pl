@@ -449,11 +449,11 @@ __END__
 
 =head1 NAME
  
-sample - midgen.pl
+midgen.pl - generate the requires for Makefile.PL using Module::Install::DSL
  
 =head1 SYNOPSIS
  
-sample [options]
+midgen.pl [options]
  
  Options:
    -help	brief help message
