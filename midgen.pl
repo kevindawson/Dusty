@@ -426,35 +426,35 @@ sub output_requires {
 	print "\n";
 
 	my $pm_length = 0;
-	foreach my $key ( sort keys %{$required_ref} ) {
-		if ( length $key > $pm_length ) {
-			$pm_length = length $key;
+	foreach my $module_name ( sort keys %{$required_ref} ) {
+		if ( length $module_name > $pm_length ) {
+			$pm_length = length $module_name;
 		}
 	}
 
 	say $title . ' => {' if $format eq 'build';
 
-	foreach my $key ( sort keys %{$required_ref} ) {
+	foreach my $module_name ( sort keys %{$required_ref} ) {
 		given ($format) {
 			when ('mi') {
-				if ( $key =~ /^Win32/ ) {
-				my $sq_key = "'$key'";
-				printf "%s %-*s => '%s' if win32;\n", $title, $pm_length + 2, $sq_key, $required_ref->{$key};
+				if ( $module_name =~ /^Win32/ ) {
+				my $sq_key = "'$module_name'";
+				printf "%s %-*s => '%s' if win32;\n", $title, $pm_length + 2, $sq_key, $required_ref->{$module_name};
 			} else {
-				my $sq_key = "'$key'";
-				printf "%s %-*s => '%s';\n", $title, $pm_length + 2, $sq_key, $required_ref->{$key};
+				my $sq_key = "'$module_name'";
+				printf "%s %-*s => '%s';\n", $title, $pm_length + 2, $sq_key, $required_ref->{$module_name};
 				}
 			}
 			when ('dsl') {
-				if ( $key =~ /^Win32/ ) {
-					printf "%s %-*s %s if win32\n", $title, $pm_length, $key, $required_ref->{$key};
+				if ( $module_name =~ /^Win32/ ) {
+					printf "%s %-*s %s if win32\n", $title, $pm_length, $module_name, $required_ref->{$module_name};
 				} else {
-					printf "%s %-*s %s\n", $title, $pm_length, $key, $required_ref->{$key};
+					printf "%s %-*s %s\n", $title, $pm_length, $module_name, $required_ref->{$module_name};
 				}
 			}
 			when ('build') {
-				my $sq_key = "'$key'";
-				printf "\t %-*s => '%s',\n", $pm_length + 2, $sq_key, $required_ref->{$key};
+				my $sq_key = "'$module_name'";
+				printf "\t %-*s => '%s',\n", $pm_length + 2, $sq_key, $required_ref->{$module_name};
 			}
 		}
 	}
