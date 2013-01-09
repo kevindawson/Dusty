@@ -22,6 +22,9 @@ use Data::Printer {
 use PPI;
 use Module::CoreList;
 use CPAN;
+CPAN::HandleConfig->load;
+CPAN::Shell::setup_output;
+CPAN::Index->reload;
 
 # use Carp::Always::Color;
 
