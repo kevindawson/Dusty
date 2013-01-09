@@ -50,12 +50,12 @@ use Getopt::Long;
 Getopt::Long::Configure("bundling");
 use Pod::Usage;
 my $help        = 0;
-my $base_parent = 0;    # 1 true ignore perl base functions
-my $core        = 0;    # show perl core modules as well
-my $verbose     = 0;    # option variable with default value (false)
-my @output      = ();
-my $mojo        = 0;    # 1 true ignore Mojo detection
-my $debug       = 0;    # lots of good stuff here :)
+my $base_parent = 0; # 1 true ignore perl base functions
+my $core        = 0; # show perl core modules as well
+my $verbose     = 0; # option variable with default value (false)
+my @output      = 'dsl';
+my $mojo        = 0; # 1 true ignore Mojo detection
+my $debug       = 0; # lots of good stuff here :)
 GetOptions(
 	'verbose|v'       => \$verbose,
 	'core|c'          => \$core,
@@ -68,13 +68,16 @@ GetOptions(
 pod2usage(1) if $help;
 
 p @output;
+
 sub output_format {
 	my $format = { dsl => 1, mi => 1, build => 1, };
-	if ( $format->{$output[0]} ) {
-		return $output[0];
-	} else {
-		return 'dsl';
-	}
+	try {
+		if ( $format->{ $output[-1] } ) {
+			return $output[-1];
+		} else {
+			return 'dsl';
+		}
+	};
 }
 
 # my $format = 'dsl'; # dsl | mi | build
@@ -306,7 +309,9 @@ sub test_requires {
 						p $module if $debug;
 
 						# don't ignore Test::More so as to get done_testing mst++
-						if ( $module ne 'Test::More' ) {
+						my $ignore_core = { 'Test::More' => 1, };
+						# if ( $module ne 'Test::More' ) {
+						if ( !$ignore_core->{$module} ) {	
 							next if Module::CoreList->first_release($module);
 						}
 
