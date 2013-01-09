@@ -36,10 +36,12 @@ midgen.pl
 ----
 This started out as a way of generating the core for a Module::Install::DSL Makefile.PL
 
-Change to root of package and run 
+Change to root of package and run
+
 	midgen.pl
 
 Now with a GetOps --help or -?
+
 	midgen.pl -?
 
 __END__
