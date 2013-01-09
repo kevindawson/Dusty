@@ -191,7 +191,9 @@ sub requires {
 					if ( !$core ) {
 
 						p $module if $debug;
-						next if Module::CoreList->first_release($module);
+						if ( $module ne 'File::Path' ) {
+							next if Module::CoreList->first_release($module);
+						}
 					}
 
 					# my $module = $include->module;
