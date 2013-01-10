@@ -4,8 +4,7 @@ use v5.14;
 use strict;
 use warnings;
 
-
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 use English qw( -no_match_vars ); # Avoids regex performance penalty
 local $OUTPUT_AUTOFLUSH = 1;
 
@@ -108,7 +107,7 @@ if ( defined -d "./lib" ) {
 }
 
 # Find required modules
-@posiable_directories_to_search = qw( lib scripts bin );
+@posiable_directories_to_search = qw( lib bin );
 @directories_to_search          = ();                   # = qw( lib scripts bin );
 
 # p @posiable_directories_to_search;
@@ -127,7 +126,7 @@ try {
 	# find( \&requires, 'lib' );
 	find( \&requires, @directories_to_search );
 };
-
+p %requires;
 
 
 output_requires( 'requires', \%requires );
@@ -190,7 +189,7 @@ sub requires {
 			# p $include->pragma;
 			# p $include->module;
 			# p $include->type;
-			if ( $include->pragma !~ /(strict|warnings)/ ) {
+			# if ( $include->pragma !~ /(strict|warnings)/ ) {
 
 				# my $module  = $include->module;
 				my @modules = $include->module;
@@ -251,7 +250,7 @@ sub requires {
 					};
 				}
 
-			}
+			# }
 		}
 	}
 	push @requires, @items;
@@ -278,16 +277,16 @@ sub test_requires {
 			# p $include->pragma;
 			# p $include->module;
 			# p $include->type;
-			if ( $include->pragma eq '' && $include->type eq 'use' ) {
+			# if ( $include->pragma eq '' && $include->type eq 'use' ) {
 
 				# say 'module';
 				# p $include->module;
-			}
-			if ( $include->pragma =~ /(base)|(parent)/ && $include->type eq 'use' ) {
+			# }
+			# if ( $include->pragma =~ /(base)|(parent)/ && $include->type eq 'use' ) {
 
 				# say 'base|parent';
 				# p $include->module;
-			}
+			# }
 
 			# if ( not $include->pragma ) {
 			if ( $include->pragma !~ /(strict|warnings)/ ) {
