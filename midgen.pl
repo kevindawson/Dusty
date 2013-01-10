@@ -107,8 +107,8 @@ if ( defined -d "./lib" ) {
 }
 
 # Find required modules
-@posiable_directories_to_search = qw( lib bin );
-@directories_to_search          = ();                   # = qw( lib scripts bin );
+@posiable_directories_to_search = qw( lib scripts bin );
+@directories_to_search          = (); # = qw( lib scripts bin );
 
 # p @posiable_directories_to_search;
 for my $directory (@posiable_directories_to_search) {
@@ -126,7 +126,7 @@ try {
 	# find( \&requires, 'lib' );
 	find( \&requires, @directories_to_search );
 };
-p %requires;
+# p %requires;
 
 
 output_requires( 'requires', \%requires );
