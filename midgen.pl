@@ -4,7 +4,7 @@ use 5.010001;
 use strict;
 use warnings;
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 use English qw( -no_match_vars ); # Avoids regex performance penalty
 local $OUTPUT_AUTOFLUSH = 1;
 
@@ -25,7 +25,7 @@ CPAN::HandleConfig->load;
 CPAN::Shell::setup_output;
 CPAN::Index->reload;
 
-use Carp::Always::Color;
+# use Carp::Always::Color;
 
 
 # check if there are versions in every module and if they are in the same
@@ -133,7 +133,7 @@ remove_children( \%requires ) if !$core;
 
 output_requires( 'requires', \%requires );
 
-# print "\n";
+print "\n";
 
 # remove_children( \%requires );
 
@@ -500,37 +500,29 @@ sub remove_children {
 		push @sorted_modules, $module_name;
 	}
 
-	# p @sorted_modules;
+	p @sorted_modules if $debug;
 
 	my $n = 0;
 	while ( $sorted_modules[$n] ) {
-
-		my @p_score = split /::/, $sorted_modules[$n];
+		
+		my $parent_name = $sorted_modules[$n];
+		my @p_score = split /::/, $parent_name;
 		my $parent_score = @p_score;
 
-		# say ' A ver ' . $required_ref->{ $sorted_modules[$n] };
 		my $child_score;
 		if ( ( $n + 1 ) <= $#sorted_modules ) {
 			$n++;
 
 			# Use of implicit split to @_ is deprecated
-			$child_score = @{ [ split /::/, $sorted_modules[$n] ] };
-
-			#$child_score = @c_score;
-			# say ' B ver ' . $required_ref->{ $sorted_modules[$n] };
+			my $child_name = $sorted_modules[$n];
+			$child_score = @{ [ split /::/, $child_name ] };
 		}
 
-		# say $sorted_modules[$n-1].'::';
-		# say $sorted_modules[$n];
 		if ( $sorted_modules[$n] =~ /$sorted_modules[$n-1]::/ ) {
-
-			# say $sorted_modules[ $n - 1 ] . '::';
-			# say $sorted_modules[$n];
 
 			# Checking for one degree of seperation ie A::B -> A::B::C is ok but A::B::C::D is not
 			if ( ( $parent_score + 1 ) == $child_score ) {
 
-				# say 'one degree of seperation';
 				# Test for same version number
 				if ( $required_ref->{ $sorted_modules[ $n - 1 ] } eq $required_ref->{ $sorted_modules[$n] } ) {
 					say 'delete miscrent' . $sorted_modules[$n] if $verbose;
