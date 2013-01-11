@@ -108,7 +108,7 @@ if ( defined -d "./lib" ) {
 
 # Find required modules
 @posiable_directories_to_search = qw( lib scripts bin );
-@directories_to_search          = (); # = qw( lib scripts bin );
+@directories_to_search          = ();                   # = qw( lib scripts bin );
 
 # p @posiable_directories_to_search;
 for my $directory (@posiable_directories_to_search) {
@@ -126,6 +126,7 @@ try {
 	# find( \&requires, 'lib' );
 	find( \&requires, @directories_to_search );
 };
+
 # p %requires;
 
 
@@ -191,64 +192,64 @@ sub requires {
 			# p $include->type;
 			# if ( $include->pragma !~ /(strict|warnings)/ ) {
 
-				# my $module  = $include->module;
-				my @modules = $include->module;
-				if ( !$base_parent ) {
+			# my $module  = $include->module;
+			my @modules = $include->module;
+			if ( !$base_parent ) {
 
-					my @base_parent_modules = base_parent( $include->module, $include->content, $include->pragma );
-					if (@base_parent_modules) {
-						@modules = @base_parent_modules;
-					}
-
+				my @base_parent_modules = base_parent( $include->module, $include->content, $include->pragma );
+				if (@base_parent_modules) {
+					@modules = @base_parent_modules;
 				}
 
-				foreach my $module (@modules) {
+			}
 
-					# p $module;
-					if ( !$core ) {
+			foreach my $module (@modules) {
 
-						p $module if $debug;
-						my $ignore_core = { 'File::Path' => 1, };
-						if ( !$ignore_core->{$module} ) {
-							next if Module::CoreList->first_release($module);
-						}
+				# p $module;
+				if ( !$core ) {
+
+					p $module if $debug;
+					my $ignore_core = { 'File::Path' => 1, };
+					if ( !$ignore_core->{$module} ) {
+						next if Module::CoreList->first_release($module);
 					}
-
-					#deal with ''
-					next if $module eq '';
-					if ( $module =~ /^$package_name/ ) {
-
-						# don't include our own packages here
-						next;
-					}
-					if ( $module =~ /Mojo/ && !$mojo ) {
-						$module = 'Mojolicious';
-					}
-					if ( $module =~ /^Padre/ && $module !~ /^Padre::Plugin::/ ) {
-
-						# mark all Padre core as just Padre, for plugins
-						push @items, 'Padre';
-						$module = 'Padre';
-					} else {
-						push @items, $module;
-					}
-
-					# if ( $mod_version eq 'current' ) {
-
-					try {
-						my $mod = CPAN::Shell->expand( "Module", $module );
-
-						if ($mod) { # next if not defined $mod;
-							        # say $module.' cpan mod version '.$mod->cpan_version;
-							        # $requires{$module} = $mod->cpan_version;
-							if ( $mod->cpan_version ne 'undef' ) {
-
-								# say $module.' cpan mod version = undef';
-								$requires{$module} = $mod->cpan_version;
-							}
-						}
-					};
 				}
+
+				#deal with ''
+				next if $module eq '';
+				if ( $module =~ /^$package_name/ ) {
+
+					# don't include our own packages here
+					next;
+				}
+				if ( $module =~ /Mojo/ && !$mojo ) {
+					$module = 'Mojolicious';
+				}
+				if ( $module =~ /^Padre/ && $module !~ /^Padre::Plugin::/ ) {
+
+					# mark all Padre core as just Padre, for plugins
+					push @items, 'Padre';
+					$module = 'Padre';
+				} else {
+					push @items, $module;
+				}
+
+				# if ( $mod_version eq 'current' ) {
+
+				try {
+					my $mod = CPAN::Shell->expand( "Module", $module );
+
+					if ($mod) { # next if not defined $mod;
+						        # say $module.' cpan mod version '.$mod->cpan_version;
+						        # $requires{$module} = $mod->cpan_version;
+						if ( $mod->cpan_version ne 'undef' ) {
+
+							# say $module.' cpan mod version = undef';
+							$requires{$module} = $mod->cpan_version;
+						}
+					}
+				};
+			}
 
 			# }
 		}
@@ -279,13 +280,13 @@ sub test_requires {
 			# p $include->type;
 			# if ( $include->pragma eq '' && $include->type eq 'use' ) {
 
-				# say 'module';
-				# p $include->module;
+			# say 'module';
+			# p $include->module;
 			# }
 			# if ( $include->pragma =~ /(base)|(parent)/ && $include->type eq 'use' ) {
 
-				# say 'base|parent';
-				# p $include->module;
+			# say 'base|parent';
+			# p $include->module;
 			# }
 
 			# if ( not $include->pragma ) {
@@ -399,6 +400,9 @@ sub base_parent {
 sub output_top {
 	my $package = shift || return;
 
+	#Let's get the Module::Install::DSL current version
+	my $mod = CPAN::Shell->expand( "Module", 'inc::Module::Install::DSL' );
+
 	given ($format) {
 
 		# when ('mi') {
@@ -406,7 +410,7 @@ sub output_top {
 		# }
 		when ('dsl') {
 			print "\n";
-			say 'use inc::Module::Install::DSL 1.06;';
+			say 'use inc::Module::Install::DSL ' . $mod->cpan_version . ';';
 			print "\n";
 			say 'all_from lib/' . $package;
 			say 'requires_from lib/' . $package;
@@ -437,11 +441,12 @@ sub output_requires {
 		given ($format) {
 			when ('mi') {
 				if ( $module_name =~ /^Win32/ ) {
-				my $sq_key = "'$module_name'";
-				printf "%s %-*s => '%s' if win32;\n", $title, $pm_length + 2, $sq_key, $required_ref->{$module_name};
-			} else {
-				my $sq_key = "'$module_name'";
-				printf "%s %-*s => '%s';\n", $title, $pm_length + 2, $sq_key, $required_ref->{$module_name};
+					my $sq_key = "'$module_name'";
+					printf "%s %-*s => '%s' if win32;\n", $title, $pm_length + 2, $sq_key,
+						$required_ref->{$module_name};
+				} else {
+					my $sq_key = "'$module_name'";
+					printf "%s %-*s => '%s';\n", $title, $pm_length + 2, $sq_key, $required_ref->{$module_name};
 				}
 			}
 			when ('dsl') {
