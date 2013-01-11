@@ -25,7 +25,7 @@ CPAN::HandleConfig->load;
 CPAN::Shell::setup_output;
 CPAN::Index->reload;
 
-# use Carp::Always::Color;
+use Carp::Always::Color;
 
 
 # check if there are versions in every module and if they are in the same
@@ -129,6 +129,7 @@ try {
 
 # p %requires;
 
+remove_children( \%requires ) if !$core;
 
 output_requires( 'requires', \%requires );
 
@@ -492,10 +493,44 @@ sub output_bottom {
 
 sub remove_children {
 	my $required_ref = shift || return;
-	foreach my $key ( sort keys %{$required_ref} ) {
-		say $required_ref->{$key};
-		next;
-		say $required_ref->{$key};
+
+	# p $required_ref;
+	my @sorted_modules;
+	foreach my $module_name ( sort keys %{$required_ref} ) {
+		push @sorted_modules, $module_name;
+	}
+	# p @sorted_modules;
+
+
+	my $n = 0;
+	while ( $sorted_modules[$n] ) {
+
+		# print $sorted_modules[$n] . ' score ' . scalar split /::/, $sorted_modules[$n];
+		# say ' A ver ' . $required_ref->{ $sorted_modules[$n] };
+
+		if ( ( $n + 1 ) <= $#sorted_modules ) {
+			$n++;
+			# print $sorted_modules[$n] . ' score ' . scalar split /::/, $sorted_modules[$n];
+			# say ' B ver ' . $required_ref->{ $sorted_modules[$n] };
+		}
+
+		# say $sorted_modules[$n-1].'::';
+		# say $sorted_modules[$n];
+		if ( $sorted_modules[$n] =~ /$sorted_modules[$n-1]::/ ) {
+			# say $sorted_modules[ $n - 1 ] . '::';
+			# say $sorted_modules[$n];
+			
+			# Checking for one degree of seperation ie A::B -> A::B::C is ok but A::B::C::D is not
+			if ( ( scalar split /::/, $sorted_modules[ $n - 1 ] ) + 1 == scalar split /::/, $sorted_modules[$n] ) {
+				# say 'one degree of seperation';
+				# Test for same version number
+				if ( $required_ref->{ $sorted_modules[ $n - 1 ] } eq $required_ref->{ $sorted_modules[$n] } ) {
+					say 'delete miscrent'. $sorted_modules[$n] if $verbose;
+					try { delete $required_ref->{ $sorted_modules[$n] }; };
+				}
+			}
+		}
+		$n++ if ( $n == $#sorted_modules );
 	}
 }
 
