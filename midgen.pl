@@ -400,13 +400,12 @@ sub base_parent {
 sub output_top {
 	my $package = shift || return;
 
-	#Let's get the Module::Install::DSL current version
+	# Let's get the Module::Install::DSL current version
 	my $mod = CPAN::Shell->expand( "Module", 'inc::Module::Install::DSL' );
 
 	given ($format) {
 
 		# when ('mi') {
-
 		# }
 		when ('dsl') {
 			print "\n";
@@ -417,7 +416,6 @@ sub output_top {
 		}
 
 		# when ('build') {
-
 		# }
 	}
 }
