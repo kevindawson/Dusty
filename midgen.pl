@@ -8,7 +8,7 @@ our $VERSION = '0.05';
 use English qw( -no_match_vars ); # Avoids regex performance penalty
 local $OUTPUT_AUTOFLUSH = 1;
 
-use feature 'unicode_strings';
+# use feature 'unicode_strings';
 use Try::Tiny;
 
 # use diagnostics;
