@@ -391,7 +391,7 @@ sub base_parent {
 
 		# my @modules = ();
 		@modules = split /, /, $content;
-
+		push @modules, $module;
 		p @modules if $debug;
 	}
 	return @modules;
