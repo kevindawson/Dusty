@@ -25,12 +25,12 @@ CPAN::HandleConfig->load;
 CPAN::Shell::setup_output;
 CPAN::Index->reload;
 
-# use Carp::Always::Color;
+use Carp::Always::Color;
 
+#######
+# menu system
 
-# check if there are versions in every module and if they are in the same
-# allow updating version numbers to one specific version.
-
+use File::Spec;
 use File::Find qw(find);
 use File::Slurp qw(read_file write_file);
 my @requires      = ();
@@ -42,8 +42,6 @@ my $package_name;
 my @posiable_directories_to_search = ();
 my @directories_to_search          = ();
 
-# my $mod_version = 'current';
-# my $mod_version = 5.010000;
 
 use Getopt::Long;
 Getopt::Long::Configure("bundling");
@@ -83,10 +81,15 @@ sub output_format {
 my $format = output_format();
 p $format if $debug;
 
+# End of Menu
+#######
+
 say 'START';
+use Cwd;
+my $cwd = cwd();
 
 try {
-	find( \&first_package_name, 'lib' );
+	find( \&first_package_name, File::Spec->catfile( $cwd, 'lib' ) );
 };
 p @package_names if $debug;
 $package_name = $package_names[0];
@@ -94,34 +97,19 @@ say 'Package: ' . $package_names[0] if $verbose;
 output_top($package_name);
 
 
-if ( defined -d "./lib" ) {
-	if ( -d _ ) {
-
-		# print "somefile is a directory\n";
-	} else {
-
-		# print "somefile is not a directory\n";
-	}
-} else {
-	print "somefile doesn't exist\n";
-}
-
 # Find required modules
-@posiable_directories_to_search = qw( lib scripts bin );
-@directories_to_search          = ();                   # = qw( lib scripts bin );
+@posiable_directories_to_search = map { File::Spec->catfile( $cwd, $_ ) } qw( lib scripts bin );
+@directories_to_search = (); # = qw( lib scripts bin );
 
-# p @posiable_directories_to_search;
+p @posiable_directories_to_search if $debug;
 for my $directory (@posiable_directories_to_search) {
-
-	# p $directory;
 	if ( defined -d $directory ) {
-
-		# say 'ok';
 		push @directories_to_search, $directory;
 	}
 }
 
 # p @directories_to_search;
+
 try {
 	# find( \&requires, 'lib' );
 	find( \&requires, @directories_to_search );
@@ -139,8 +127,8 @@ print "\n";
 
 
 # Find test_required modules
-@posiable_directories_to_search = qw( t );
-@directories_to_search          = ();
+@posiable_directories_to_search = File::Spec->catfile( $cwd, 't' );
+@directories_to_search = ();
 for my $directory (@posiable_directories_to_search) {
 	if ( defined -d $directory ) {
 		push @directories_to_search, $directory;
@@ -504,9 +492,9 @@ sub remove_children {
 
 	my $n = 0;
 	while ( $sorted_modules[$n] ) {
-		
-		my $parent_name = $sorted_modules[$n];
-		my @p_score = split /::/, $parent_name;
+
+		my $parent_name  = $sorted_modules[$n];
+		my @p_score      = split /::/, $parent_name;
 		my $parent_score = @p_score;
 
 		my $child_score;
@@ -578,7 +566,7 @@ By default we do 'dsl' -> Module::Include::DSL
 
 =item B<-core or -c>
 
-Shows modules that are in Perl core
+Shows modules that are in Perl core also show a modules children we have been hiding
 
 =item B<--verbose or -v>
 
