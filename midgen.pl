@@ -5,7 +5,7 @@ use strict;
 use warnings;
 
 our $VERSION = '0.05';
-use English qw( -no_match_vars ); # Avoids regex performance penalty
+use English qw( -no_match_vars ); # Avoids reg-ex performance penalty
 local $OUTPUT_AUTOFLUSH = 1;
 
 # use feature 'unicode_strings';
@@ -216,7 +216,7 @@ sub requires {
 				}
 				if ( $module =~ /^Padre/ && $module !~ /^Padre::Plugin::/ ) {
 
-					# mark all Padre core as just Padre, for plugins
+					# mark all Padre core as just Padre, for plug-ins
 					push @items, 'Padre';
 					$module = 'Padre';
 				} else {
@@ -317,7 +317,7 @@ sub test_requires {
 					}
 					if ( $module =~ /^Padre/ && $module !~ /^Padre::Plugin::/ ) {
 
-						# mark all Padre core as just Padre, for plugins
+						# mark all Padre core as just Padre, for plug-ins
 						push @items, 'Padre';
 						$module = 'Padre';
 					} else {
@@ -508,12 +508,12 @@ sub remove_children {
 
 		if ( $sorted_modules[$n] =~ /$sorted_modules[$n-1]::/ ) {
 
-			# Checking for one degree of seperation ie A::B -> A::B::C is ok but A::B::C::D is not
+			# Checking for one degree of separation ie A::B -> A::B::C is ok but A::B::C::D is not
 			if ( ( $parent_score + 1 ) == $child_score ) {
 
 				# Test for same version number
 				if ( $required_ref->{ $sorted_modules[ $n - 1 ] } eq $required_ref->{ $sorted_modules[$n] } ) {
-					say 'delete miscrent' . $sorted_modules[$n] if $verbose;
+					say 'delete miscreant' . $sorted_modules[$n] if $verbose;
 					try { delete $required_ref->{ $sorted_modules[$n] }; };
 				}
 			}
@@ -530,15 +530,18 @@ exit(0);
 
 __END__
 
+=pod
+
+=encoding utf8
 
 =head1 NAME
- 
-midgen.pl - generate the requires for Makefile.PL using Module::Install::DSL
- 
+
+midgen.pl - generate the requires and test requires for Makefile.PL using Module::Install::DSL
+
 =head1 SYNOPSIS
- 
+
 midgen.pl [options]
- 
+
  Options:
    -help	brief help message
    -output	change format
@@ -547,19 +550,20 @@ midgen.pl [options]
    -base	Don't check for base includes
    -mojo	Don't be Mojo friendly	
    -debug	lots of stuff
-   
+
 =head1 OPTIONS
- 
+
 =over 4
- 
+
 =item B<--help or -h>
- 
+
 Print a brief help message and exits.
 
 =item B<--output or -o>
- 
+
 By default we do 'dsl' -> Module::Include::DSL
 
+ midgen.pl -o dsl	# Module::Include::DSL
  midgen.pl -o mi	# Module::Include
  midgen.pl -o build	# Build.PL
 
@@ -592,7 +596,7 @@ equivalent of -cv and some :)
  
 =head1 DESCRIPTION
 
-This started out as a way of generating the core for a Module::Install::DSL Makefile.PL
+This started out as a way of generating the core for a Module::Install::DSL Makefile.PL, why DSL because it's nice and clean, so now I can generate the contents when I want, rather than as I add new use and require statements, and because Adam kicked me :)
 
 Change to root of package and run
 
@@ -608,9 +612,11 @@ Kevin Dawson E<lt>bowtie@cpan.orgE<gt>
 
 =head2 CONTRIBUTORS
 
+none at present
+
 =head1 COPYRIGHT
 
-Copyright E<copy> 2012-2013 AUTHORS and "CONTRIBUTORS" as listed above.
+Copyright E<copy> 2012-2013 AUTHORS and CONTRIBUTORS as listed above.
 
 =head1 LICENSE
 
@@ -618,7 +624,7 @@ This program is free software; you can redistribute it and/or
 modify it under the same terms as Perl 5 itself.
 
 =head1 SEE ALSO
- 
+
 L<Perl::PrereqScanner>,
 
 =cut
