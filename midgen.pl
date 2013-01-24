@@ -45,21 +45,23 @@ my @directories_to_search          = ();
 use Getopt::Long;
 Getopt::Long::Configure('bundling');
 use Pod::Usage;
-my $help        = 0;
-my $base_parent = 0;    # 1 true ignore perl base functions
-my $core        = 0;    # show perl core modules as well
-my $verbose     = 0;    # option variable with default value (false)
-my @output      = 'dsl';
-my $mojo        = 0;    # 1 true ignore Mojo detection
-my $debug       = 0;    # lots of good stuff here :)
+my $help           = 0;
+my $base_parent    = 0;    # 1 true ignore perl base functions
+my $core           = 0;    # show perl core modules as well
+my $verbose        = 0;    # option variable with default value (false)
+my @output         = 'dsl';
+my $mojo           = 0;    # 1 true ignore Mojo detection
+my $noisy_children = 0;    # unwanted noisy children
+my $debug          = 0;    # lots of good stuff here :)
 GetOptions(
-	'verbose|v'       => \$verbose,
-	'core|c'          => \$core,
-	'base|parent|b|p' => \$base_parent,
-	'help|h|?'        => \$help,
-	'mojo|m'          => \$mojo,
-	'output|o=s'      => \@output,
-	'debug|d'         => sub { $core = 1; $verbose = 1; $base_parent = 0; $mojo = 0; $debug = 1; },
+	'verbose|v'        => \$verbose,
+	'core|c'           => \$core,
+	'base|parent|b|p'  => \$base_parent,
+	'help|h|?'         => \$help,
+	'mojo|m'           => \$mojo,
+	'output|o=s'       => \@output,
+	'noisy_children|n' => \$noisy_children,
+	'debug|d' => sub { $core = 1; $verbose = 1; $base_parent = 1; $mojo = 1; $noisy_children = 1; $debug = 1; },
 ) or pod2usage(2);
 pod2usage(1) if $help;
 
@@ -321,6 +323,7 @@ sub test_requires {
 	return;
 }
 
+
 sub base_parent {
 	my $module  = shift;
 	my $content = shift;
@@ -371,6 +374,7 @@ sub output_top {
 	return;
 }
 
+
 sub output_requires {
 	my $title        = shift || 'title missing';
 	my $required_ref = shift || return;
@@ -415,6 +419,7 @@ sub output_requires {
 	return;
 }
 
+
 sub output_bottom {
 
 	given ($format) {
@@ -445,6 +450,7 @@ sub output_bottom {
 	return;
 }
 
+
 sub remove_children {
 	my $required_ref = shift || return;
 	my @sorted_modules;
@@ -470,15 +476,23 @@ sub remove_children {
 			$child_score = @{ [ split /::/, $child_name ] };
 		}
 
-		if ( $sorted_modules[$n] =~ /$sorted_modules[$n-1]::/ ) {
+		if ( $sorted_modules[$n] =~ /^$sorted_modules[$n-1]::/ ) {
 
 			# Checking for one degree of seperation ie A::B -> A::B::C is ok but A::B::C::D is not
 			if ( ( $parent_score + 1 ) == $child_score ) {
 
 				# Test for same version number
 				if ( $required_ref->{ $sorted_modules[ $n - 1 ] } eq $required_ref->{ $sorted_modules[$n] } ) {
-					say 'delete miscrent' . $sorted_modules[$n] if $verbose;
-					try { delete $required_ref->{ $sorted_modules[$n] }; };
+					say 'delete miscreant noisy children '
+						. $sorted_modules[$n] . ' ver '
+						. $required_ref->{ $sorted_modules[$n] }
+						if $noisy_children;
+					try {
+						delete $required_ref->{ $sorted_modules[$n] };
+						splice( @sorted_modules, $n, 1 );
+						$n--;
+					};
+					p @sorted_modules if $debug;
 				}
 			}
 		}
@@ -533,7 +547,6 @@ By default we do 'dsl' -> Module::Include::DSL
 =item B<-core or -c>
 
  * Shows modules that are in Perl core 
- * Show a modules children we have been hiding
 
 =item B<--verbose or -v>
 
@@ -550,6 +563,10 @@ Turn Off - try to include the contents of base|parent modules as well
 =item B<--mojo or -m>
 
 Turn Off - the /Mojo/ to Mojolicious catch
+
+=item B<--noisy_children or -n>
+
+ * Show a required modules noisy children, as we find them
 
 =item B<--debug or -d>
 
