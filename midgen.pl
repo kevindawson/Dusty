@@ -5,13 +5,10 @@ use strict;
 use warnings;
 
 our $VERSION = '0.05';
-use English qw( -no_match_vars ); # Avoids reg-ex performance penalty
+use English qw( -no_match_vars ); # Avoids regex performance penalty
 local $OUTPUT_AUTOFLUSH = 1;
 
-# use feature 'unicode_strings';
 use Try::Tiny;
-
-# use diagnostics;
 use autodie;
 use Data::Printer {
 	caller_info => 1,
@@ -21,10 +18,6 @@ use Data::Printer {
 use PPI;
 use Module::CoreList;
 use CPAN;
-CPAN::HandleConfig->load;
-CPAN::Shell::setup_output;
-CPAN::Index->reload;
-
 use Carp::Always::Color;
 
 #######
@@ -81,13 +74,21 @@ sub output_format {
 my $format = output_format();
 p $format if $debug;
 
+# set up cpan bit's as well as being upto date
+CPAN::HandleConfig->load;
+CPAN::Shell::setup_output;
+CPAN::Index->reload;
+
+
 # End of Menu
 #######
 
 say 'START';
+
 use Cwd;
 my $cwd = cwd();
 
+# Find Package name,
 try {
 	find( \&first_package_name, File::Spec->catfile( $cwd, 'lib' ) );
 };
@@ -99,7 +100,7 @@ output_top($package_name);
 
 # Find required modules
 @posiable_directories_to_search = map { File::Spec->catfile( $cwd, $_ ) } qw( lib scripts bin );
-@directories_to_search = (); # = qw( lib scripts bin );
+@directories_to_search = ();
 
 p @posiable_directories_to_search if $debug;
 for my $directory (@posiable_directories_to_search) {
@@ -108,10 +109,7 @@ for my $directory (@posiable_directories_to_search) {
 	}
 }
 
-# p @directories_to_search;
-
 try {
-	# find( \&requires, 'lib' );
 	find( \&requires, @directories_to_search );
 };
 
@@ -145,12 +143,14 @@ output_bottom();
 print "\n";
 say 'END';
 
+#
+# Composed methods follow
+##########################
 
 sub first_package_name {
 	my $self = shift;
 	return if $_ !~ /\.pm$/;
 
-	# say 'input: ' . $_;
 	my @items = ();
 
 	# Load a Document from a file
@@ -159,6 +159,7 @@ sub first_package_name {
 
 	push @package_names, $ppi_sp->[0]->namespace;
 }
+
 
 sub requires {
 	return if $_ !~ /\.p[lm]$/;
@@ -176,28 +177,19 @@ sub requires {
 		foreach my $include ( @{$includes} ) {
 			next if $include->type eq 'no';
 
-			# p $include->pragma;
-			# p $include->module;
-			# p $include->type;
-			# if ( $include->pragma !~ /(strict|warnings)/ ) {
-
-			# my $module  = $include->module;
 			my @modules = $include->module;
 			if ( !$base_parent ) {
-
 				my @base_parent_modules = base_parent( $include->module, $include->content, $include->pragma );
 				if (@base_parent_modules) {
 					@modules = @base_parent_modules;
 				}
-
 			}
 
 			foreach my $module (@modules) {
 
-				# p $module;
 				if ( !$core ) {
-
 					p $module if $debug;
+					# hash with core modules to process regardless
 					my $ignore_core = { 'File::Path' => 1, };
 					if ( !$ignore_core->{$module} ) {
 						next if Module::CoreList->first_release($module);
@@ -216,21 +208,17 @@ sub requires {
 				}
 				if ( $module =~ /^Padre/ && $module !~ /^Padre::Plugin::/ ) {
 
-					# mark all Padre core as just Padre, for plug-ins
+					# mark all Padre core as just Padre, for plugins
 					push @items, 'Padre';
 					$module = 'Padre';
 				} else {
 					push @items, $module;
 				}
 
-				# if ( $mod_version eq 'current' ) {
-
 				try {
 					my $mod = CPAN::Shell->expand( "Module", $module );
 
-					if ($mod) { # next if not defined $mod;
-						        # say $module.' cpan mod version '.$mod->cpan_version;
-						        # $requires{$module} = $mod->cpan_version;
+					if ($mod) { 
 						if ( $mod->cpan_version ne 'undef' ) {
 
 							# say $module.' cpan mod version = undef';
@@ -239,12 +227,11 @@ sub requires {
 					}
 				};
 			}
-
-			# }
 		}
 	}
 	push @requires, @items;
 }
+
 
 sub test_requires {
 
@@ -259,26 +246,10 @@ sub test_requires {
 	my $Document = PPI::Document->new($_);
 	my $includes = $Document->find('PPI::Statement::Include');
 
-	# p $includes;
 	if ($includes) {
 		foreach my $include ( @{$includes} ) {
 			next if $include->type eq 'no';
 
-			# p $include->pragma;
-			# p $include->module;
-			# p $include->type;
-			# if ( $include->pragma eq '' && $include->type eq 'use' ) {
-
-			# say 'module';
-			# p $include->module;
-			# }
-			# if ( $include->pragma =~ /(base)|(parent)/ && $include->type eq 'use' ) {
-
-			# say 'base|parent';
-			# p $include->module;
-			# }
-
-			# if ( not $include->pragma ) {
 			if ( $include->pragma !~ /(strict|warnings)/ ) {
 
 				my @modules = $include->module;
@@ -291,12 +262,11 @@ sub test_requires {
 				}
 
 				foreach my $module (@modules) {
-
-					# p $module;
 					if ( !$core ) {
 
 						p $module if $debug;
-
+						
+						# hash with core modules to process regardless
 						# don't ignore Test::More so as to get done_testing mst++
 						my $ignore_core = { 'Test::More' => 1, };
 						if ( !$ignore_core->{$module} ) {
@@ -317,19 +287,15 @@ sub test_requires {
 					}
 					if ( $module =~ /^Padre/ && $module !~ /^Padre::Plugin::/ ) {
 
-						# mark all Padre core as just Padre, for plug-ins
+						# mark all Padre core as just Padre, for plugins
 						push @items, 'Padre';
 						$module = 'Padre';
 					} else {
 						push @items, $module;
 					}
 
-
 					try {
 						my $mod = CPAN::Shell->expand( "Module", $module );
-
-						# p $mod;
-
 						if ($mod) { # next if not defined $mod;
 							if ( $mod->cpan_version ) {
 								if ( !$requires{$module} ) {
@@ -338,10 +304,7 @@ sub test_requires {
 							}
 						} else {
 							$module =~ s/^(\S+)::\S+/$1/;
-
-							# p $module;
 							my $mod = CPAN::Shell->expand( "Module", $module );
-
 							p $mod if $debug;
 
 							if ($mod) { # next if not defined $mod;
@@ -377,7 +340,6 @@ sub base_parent {
 		$content =~ s/\s*[\>|\)|\}|\]];\n?\t?$//;
 		$content =~ s/(\n\t)/, /g;
 
-		# my @modules = ();
 		@modules = split /, /, $content;
 		push @modules, $module;
 		p @modules if $debug;
@@ -460,11 +422,13 @@ sub output_bottom {
 
 		# }
 		when ('dsl') {
-			print "\n";
-			say '#ToDo you should consider completing the following';
-			say 'homepage	...';
-			say 'bugtracker	...';
-			say 'repository	...';
+			if ($verbose) {
+				print "\n";
+				say '#ToDo you should consider completing the following';
+				say 'homepage	...';
+				say 'bugtracker	...';
+				say 'repository	...';
+			}
 			print "\n";
 			if ( defined -d "./share" ) {
 				say 'install_share';
@@ -481,8 +445,6 @@ sub output_bottom {
 
 sub remove_children {
 	my $required_ref = shift || return;
-
-	# p $required_ref;
 	my @sorted_modules;
 	foreach my $module_name ( sort keys %{$required_ref} ) {
 		push @sorted_modules, $module_name;
@@ -508,12 +470,12 @@ sub remove_children {
 
 		if ( $sorted_modules[$n] =~ /$sorted_modules[$n-1]::/ ) {
 
-			# Checking for one degree of separation ie A::B -> A::B::C is ok but A::B::C::D is not
+			# Checking for one degree of seperation ie A::B -> A::B::C is ok but A::B::C::D is not
 			if ( ( $parent_score + 1 ) == $child_score ) {
 
 				# Test for same version number
 				if ( $required_ref->{ $sorted_modules[ $n - 1 ] } eq $required_ref->{ $sorted_modules[$n] } ) {
-					say 'delete miscreant' . $sorted_modules[$n] if $verbose;
+					say 'delete miscrent' . $sorted_modules[$n] if $verbose;
 					try { delete $required_ref->{ $sorted_modules[$n] }; };
 				}
 			}
@@ -522,8 +484,6 @@ sub remove_children {
 	}
 
 }
-
-
 
 
 exit(0);
@@ -570,7 +530,8 @@ By default we do 'dsl' -> Module::Include::DSL
 
 =item B<-core or -c>
 
-Shows modules that are in Perl core also show a modules children we have been hiding
+ * Shows modules that are in Perl core 
+ * Show a modules children we have been hiding
 
 =item B<--verbose or -v>
 
@@ -596,7 +557,7 @@ equivalent of -cv and some :)
  
 =head1 DESCRIPTION
 
-This started out as a way of generating the core for a Module::Install::DSL Makefile.PL, why DSL because it's nice and clean, so now I can generate the contents when I want, rather than as I add new use and require statements, and because Adam kicked me :)
+This started out as a way of generating the core for a Module::Install::DSL Makefile.PL, why DSL because it's nice and clean, so now I can generate the contents when I want, rather than as I add new use and require statments, and because adam kicked me :)
 
 Change to root of package and run
 
