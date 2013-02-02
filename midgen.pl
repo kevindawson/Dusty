@@ -177,11 +177,15 @@ sub requires {
 	my $document = PPI::Document->new($_);
 	my $includes = $document->find('PPI::Statement::Include');
 
+	# p $includes if $debug;
+
 	if ($includes) {
 		foreach my $include ( @{$includes} ) {
+			p $include if $debug;
 			next if $include->type eq 'no';
 
 			my @modules = $include->module;
+			p @modules if $debug;
 			if ( !$base_parent ) {
 				my @base_parent_modules = base_parent( $include->module, $include->content, $include->pragma );
 				if (@base_parent_modules) {
@@ -190,6 +194,7 @@ sub requires {
 			}
 
 			foreach my $module (@modules) {
+				p $module if $debug;
 
 				if ( !$core ) {
 					p $module if $debug;
@@ -199,6 +204,7 @@ sub requires {
 					if ( !$ignore_core->{$module} ) {
 						next if Module::CoreList->first_release($module);
 					}
+					p Module::CoreList->first_release($module);
 				}
 
 				#deal with ''
@@ -223,20 +229,20 @@ sub requires {
 				try {
 					my $mod = CPAN::Shell->expand( 'Module', $module );
 
-					# $requires{$module} = $mod->cpan_version if ( $mod->cpan_version ne 'undef' );
-					# if ($mod) {
 					if ( $mod->cpan_version ne 'undef' ) {
 
-						# say $module.' cpan mod version = undef';
+						# alociate current cpan version against module name
 						$requires{$module} = $mod->cpan_version;
 					}
-
-					# }
+				}
+				catch {
+					$requires{$module} = 0;
 				};
 			}
 		}
 	}
 	push @requires, @items;
+	p @requires if $debug;
 	return;
 }
 
@@ -546,7 +552,9 @@ By default we do 'dsl' -> Module::Include::DSL
 
 =item B<-core or -c>
 
- * Shows modules that are in Perl core 
+ * Shows modules that are in Perl core
+ * some modules have a version number eg; constant, Carp
+ * some have a version of 0 eg; strict, English 
 
 =item B<--verbose or -v>
 
