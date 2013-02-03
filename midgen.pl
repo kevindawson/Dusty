@@ -106,7 +106,7 @@ output_top($package_name);
 
 
 # Find required modules
-@posiable_directories_to_search = map { File::Spec->catfile( $cwd, $_ ) } qw( lib bin );
+@posiable_directories_to_search = map { File::Spec->catfile( $cwd, $_ ) } qw( lib bin script);
 @directories_to_search = ();
 
 p @posiable_directories_to_search if $debug;
@@ -204,7 +204,6 @@ sub requires {
 					if ( !$ignore_core->{$module} ) {
 						next if Module::CoreList->first_release($module);
 					}
-					p Module::CoreList->first_release($module);
 				}
 
 				#deal with ''
@@ -226,17 +225,28 @@ sub requires {
 					push @items, $module;
 				}
 
+				my $mod;
+				my $mod_in_cpan = 0;
 				try {
-					my $mod = CPAN::Shell->expand( 'Module', $module );
+					$mod = CPAN::Shell->expand( 'Module', $module );
 
 					if ( $mod->cpan_version ne 'undef' ) {
 
 						# alociate current cpan version against module name
-						$requires{$module} = $mod->cpan_version;
+						# $requires{$module} = $mod->cpan_version;
+						$mod_in_cpan = 1;
 					}
 				}
 				catch {
+					say 'caught ' . $module if $debug;
 					$requires{$module} = 0;
+				}
+				finally {
+					if ($mod_in_cpan) {
+
+						# alociate current cpan version against module name
+						$requires{$module} = $mod->cpan_version;
+					}
 				};
 			}
 		}
