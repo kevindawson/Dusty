@@ -106,7 +106,7 @@ output_top($package_name);
 
 
 # Find required modules
-@posiable_directories_to_search = map { File::Spec->catfile( $cwd, $_ ) } qw( lib bin script);
+@posiable_directories_to_search = map { File::Spec->catfile( $cwd, $_ ) } qw( lib script );
 @directories_to_search = ();
 
 p @posiable_directories_to_search if $debug;
@@ -120,7 +120,7 @@ try {
 	find( \&requires, @directories_to_search );
 };
 p %requires if $debug;
-remove_children( \%requires ) if !$core;
+remove_children( \%requires ) if ( !$verbose );
 
 output_requires( 'requires', \%requires );
 
@@ -166,15 +166,23 @@ sub first_package_name {
 
 
 sub requires {
-	return if $_ !~ /[.]p[lm]$/sxm;
+	# return if $_ !~ /[.]p[lm]$/sxm;
 
-	if ($verbose) {
-		say 'looking for requires in: ' . $_;
-	}
-	my @items = ();
+	# if ($verbose) {
+		# say 'looking for requires in: ' . $_;
+	# }
+	# my @items = ();
 
 	# Load a Document from a file
 	my $document = PPI::Document->new($_);
+	return unless ( defined $document->find('PPI::Statement::Package') || $document->find('PPI::Token::Comment') =~ /perl/ );
+	
+	if ($verbose) {
+		say 'looking for requires in: ' . $_;
+	}
+	my @items = ();	
+	
+	
 	my $includes = $document->find('PPI::Statement::Include');
 
 	# p $includes if $debug;
@@ -380,8 +388,8 @@ sub output_top {
 			print "\n";
 			say 'use inc::Module::Install::DSL ' . $mod->cpan_version . ';';
 			print "\n";
-			say 'all_from lib/' . $package;
-			say 'requires_from lib/' . $package;
+			say 'all_from lib/' . $package . '.pm';
+			say 'requires_from lib/' . $package . '.pm';
 		}
 
 		# when ('build') {
