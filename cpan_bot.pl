@@ -1,11 +1,11 @@
 #!/usr/bin/env perl
 
-use 5.014;
+use 5.010001;
 use strict;
-use warnings;
+use warnings FATAL => 'all';
 
-# Turn on $OUTPUT_AUTOFLUSH
-$| = 1;
+use English qw( -no_match_vars );    # Avoids reg-ex performance penalty
+local $OUTPUT_AUTOFLUSH = 1;
 
 use feature 'unicode_strings';
 
@@ -25,11 +25,24 @@ CPAN::Shell::setup_output;
 CPAN::Index->reload;
 
 
-my @modules = qw( POE POE::Component::IRC::State YAML::XS Data::Printer DBD::SQLite DBI IRC::Utils DateTime );
+my @modules = qw(
+  Code::Explain
+  DBI
+  Data::Printer
+  DateTime
+  IRC::Utils
+  POE
+  POE::Component::IRC
+  POE::Component::IRC::Plugin::AutoJoin
+  POE::Component::IRC::Plugin::FollowTail
+  POE::Component::IRC::Plugin::Logger
+  POE::Component::IRC::State
+  YAML::XS
+);
 
 # install Padre on top of perlbrew and cpan_new.pl:
 for my $mod (@modules) {
-	CPAN::Shell->install($mod);
+  CPAN::Shell->install($mod);
 }
 
 

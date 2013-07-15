@@ -4,7 +4,7 @@ use 5.010001;
 use strict;
 use warnings;
 
-use English qw( -no_match_vars ); # Avoids regex performance penalty
+use English qw( -no_match_vars );    # Avoids regex performance penalty
 $OUTPUT_AUTOFLUSH = 1;
 
 our $VERSION = '0.101';
@@ -21,34 +21,33 @@ CPAN::Index->reload;
 say 'START';
 
 my @modules = qw(
-	Term::ReadKey
-	Term::ReadLine::Perl
-	YAML
-	YAML::XS
-	CPAN::SQLite
-	CPAN::Reporter
-	JSON
-	JSON::XS
-	Test::Reporter::Transport::Metabase
-	Crypt::SSLeay
-	LWP::UserAgent
-	LWP::Protocol::https
-	IO::Socket::SSL
-	Module::Install::DSL
-	App::perlbrew
-	App::cpanminus
-	App::pmuninstall
-	IPC::System::Simple
+  Term::ReadKey
+  Term::ReadLine::Perl
+  YAML
+  YAML::XS
+  CPAN::SQLite
+  CPAN::Reporter
+  JSON
+  JSON::XS
+  Test::Reporter::Transport::Metabase
+  Crypt::SSLeay
+  LWP::UserAgent
+  LWP::Protocol::https
+  IO::Socket::SSL
+  Module::Install::DSL
+  App::perlbrew
+  App::cpanminus
+  App::cpanminus::reporter
+  App::pmuninstall
+  IPC::System::Simple
 );
 
 # install into a virgin perlbrew:
 for my $mod (@modules) {
-	CPAN::Shell->install($mod);
+  CPAN::Shell->install($mod);
 }
 
 say 'END';
-
-1;
 
 __END__
 
