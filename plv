@@ -1,0 +1,35 @@
+#!/usr/bin/env perl
+
+use v5.14;
+use strict;
+use warnings FATAL => 'all';
+
+use Carp::Always::Color;
+
+our $VERSION = '0.03';
+use English qw( -no_match_vars );    # Avoids regex performance penalty
+local $OUTPUT_AUTOFLUSH = 1;
+
+use CPAN;
+
+printf("%-50s %10s %10s\n", "Module", "Installed", "CPAN");
+foreach my $argument (@ARGV) {
+  say $argument;
+  my $mod;
+  foreach $mod (CPAN::Shell->expand("Module", $argument)) {
+
+    my $install_module = "-";
+    $install_module = $mod->inst_version if defined($mod->inst_version);
+
+    printf(
+      "%-50s %10s %10s %s\n",
+      $mod->id,
+      $install_module,
+      $mod->cpan_version eq "undef"
+        || !defined($mod->cpan_version) ? "-" : $mod->cpan_version,
+      $mod->uptodate ? "" : "*"
+    );
+
+  }
+}
+

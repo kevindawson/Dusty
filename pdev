@@ -1,0 +1,110 @@
+#!/usr/bin/env bash
+#===============================================================================
+#
+#          FILE:  pdev
+#
+#         USAGE:  ./pdev
+#
+#   DESCRIPTION:
+#
+#       OPTIONS:  ---
+#  REQUIREMENTS:  ---
+#          BUGS:  ---
+#         NOTES:  ---
+#        AUTHOR: kevin dawson (kpd), kevin@bowtie.org
+#       COMPANY: KPD Consultancy Ltd.
+#       VERSION:  0.0.1
+#       CREATED: 25/03/11 12:53:20 GMT
+#      REVISION:  ---
+#===============================================================================
+
+set -o nounset # Treat unset variables as an error
+
+# put command line options in array prams
+declare  -a prams
+if [[ $@ ]]; then
+prams="$@"
+## printf "prams: ${prams[*]}\n"
+fi
+
+# tputcolors
+Cyan="$(tput setaf 6)"
+txtrst=$(tput sgr0)             # Reset
+txtbld=$(tput bold)             # Bold
+bldred=${txtbld}$(tput setaf 1) #  red
+warn=${bldred}!${txtrst}
+
+#===  FUNCTION  ================================================================
+#          NAME:  run_padre
+#   DESCRIPTION:
+#    PARAMETERS:  none
+#       RETURNS:  none
+#===============================================================================
+
+run_padre ()
+{
+   cd ~/src/Padre/Padre
+   printf "OK! so we are up to date then:\n"
+   if [[ ${#prams[@]} > 0  ]] ; then 
+      printf "perl dev ${prams[*]}\n"
+      perl dev ${prams[@]} # with parameters
+   else
+      printf "perl dev\n"
+      perl dev
+    fi 
+   
+}	# ----------  end of function run_padre  ----------
+
+
+#===  FUNCTION  ================================================================
+#          NAME:  build_padre
+#   DESCRIPTION:
+#    PARAMETERS:  none
+#       RETURNS:  none
+#===============================================================================
+
+build_padre ()
+{
+   cd ~/src/Padre/Padre
+   svn update
+   cd ~/src/Padre/Padre
+   perl Makefile.PL
+   make
+   #make test
+   
+}	# ----------  end of function build_padre  ----------
+
+#-------------------------------------------------------------------------------
+#  main
+#-------------------------------------------------------------------------------
+cd ~/src/Padre/Padre
+
+my_svn_local_revison=$(svn info |grep "Last Changed Rev" |awk '{print $4}' )
+# my_svn_local_revison=14193 ## for testing
+printf "svn local revison: ${my_svn_local_revison}\n"
+
+my_svn_padre_revison=$(svn status -u |grep "Status against revision" |awk '{print $4}' )
+printf "svn padre revison: ${my_svn_padre_revison}\n"
+
+if [ ${my_svn_local_revison} -eq ${my_svn_padre_revison} ] ; then
+   run_padre
+   
+else
+   
+   read -p "You need to Install & Configure: [y/N]? "
+   if [[ ${REPLY} = [Yy] ]] ; then
+      build_padre
+   fi
+   
+   run_padre
+   
+fi
+
+# end unload functions: good house keeping ;)
+unset run_padre
+unset build_padre
+printf "\n\t\t${Cyan}So Long & Thanks for all the Fish${warn}\n\n"
+exit 0
+#
+### end of script
+#
