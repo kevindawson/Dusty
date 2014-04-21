@@ -35,11 +35,13 @@ my @modules = qw(
   LWP::Protocol::https
   IO::Socket::SSL
   Module::Install::DSL
-  App::perlbrew
   App::cpanminus
   App::cpanminus::reporter
   App::pmuninstall
+  Perl::Version
   IPC::System::Simple
+  Carp::Always::Color
+  App::perlbrew
 );
 
 # install into a virgin perlbrew:
